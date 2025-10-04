@@ -1,0 +1,9 @@
+@echo off
+echo Building Miniblox App (requires admin rights)...
+echo.
+echo Cleaning cache...
+rmdir /s /q "%LOCALAPPDATA%\electron-builder\Cache" 2>nul
+echo.
+echo Building...
+npm run build:win
+pause
