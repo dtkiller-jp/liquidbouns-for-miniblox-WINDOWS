@@ -1,46 +1,30 @@
 # Miniblox Desktop App
 
-miniblox.ioのデスクトップアプリケーション（Electron製）
+Desktop application for miniblox.io built with Electron.
 
-## セットアップ
+## Setup
 
 ```bash
 npm install
 ```
 
-## 開発モードで起動
+## Run in Development Mode
 
 ```bash
 npm start
 ```
 
-## インストーラーをビルド
+## Build Installer
 
 ```bash
 npm run build:win
 ```
 
-ビルド後、`dist`フォルダに`.exe`インストーラーが生成されます。
+After building, the `.exe` installer will be generated in the `dist` folder.
 
-## UserscriptのURL設定
+## Configure Userscript URL
 
-アプリ起動後、ブラウザのコンソールで以下を実行：
-
-```javascript
-// UserscriptのURLを設定
-await window.minibloxApp.setUserscriptUrl('https://example.com/your-script.js');
-
-// 設定を確認
-await window.minibloxApp.getUserscriptUrl();
-```
-
-設定後、アプリを再起動するとuserscriptが自動的に読み込まれます。
-
-## 設定ファイルの場所
-
-- Windows: `%APPDATA%\miniblox-app\config.json`
-
-このファイルを直接編集することもできます：
+Edit `config.json` in the project root:
 
 ```json
 {
@@ -48,10 +32,18 @@ await window.minibloxApp.getUserscriptUrl();
 }
 ```
 
-## アイコンについて
+The userscript will be automatically loaded when the app starts.
 
-`assets/icon.png`と`assets/icon.ico`を用意してください。
-- icon.png: 512x512px以上推奨
-- icon.ico: Windowsインストーラー用
+## Features
 
-アイコンがない場合はデフォルトのElectronアイコンが使用されます。
+- Press **F11** to toggle fullscreen mode
+- Userscript injection from URL
+- Windows installer with desktop shortcut
+
+## Icons
+
+Place your icon files in the `assets` folder:
+- `icon.png`: 512x512px or larger recommended
+- `icon.ico`: For Windows installer
+
+If no icons are provided, the default Electron icon will be used.

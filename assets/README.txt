@@ -1,9 +1,9 @@
-アイコンファイルをここに配置してください：
+Place your icon files here:
 
-- icon.png (512x512px以上推奨)
-- icon.ico (Windowsインストーラー用)
+- icon.png (512x512px or larger recommended)
+- icon.ico (For Windows installer)
 
-アイコンがない場合はデフォルトのElectronアイコンが使用されます。
+If no icons are provided, the default Electron icon will be used.
 
-オンラインツールでPNGからICOに変換できます：
-https://convertio.co/ja/png-ico/
+Convert PNG to ICO online:
+https://convertio.co/png-ico/

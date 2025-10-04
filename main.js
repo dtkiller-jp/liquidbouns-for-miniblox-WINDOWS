@@ -5,8 +5,8 @@ const fs = require('fs');
 let mainWindow;
 let userscriptUrl = '';
 
-// 設定ファイルのパス
-const configPath = path.join(app.getPath('userData'), 'config.json');
+// 設定ファイルのパス（プロジェクトルートのconfig.json）
+const configPath = path.join(__dirname, 'config.json');
 
 // 設定を読み込む
 function loadConfig() {
@@ -44,6 +44,13 @@ function createWindow() {
   });
 
   mainWindow.loadURL('https://miniblox.io');
+
+  // F11でフルスクリーン切り替え
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F11' && input.type === 'keyDown') {
+      mainWindow.setFullScreen(!mainWindow.isFullScreen());
+    }
+  });
 
   // 開発者ツール（必要に応じてコメントアウト）
   // mainWindow.webContents.openDevTools();
