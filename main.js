@@ -78,7 +78,7 @@ function createWindow() {
   // クラッシュ検出
   mainWindow.webContents.on('render-process-gone', (event, details) => {
     console.error('========================================');
-    console.error('RENDER PROCESS CRASHED!');
+    console.error('CRASHED!');
     console.error('Reason:', details.reason);
     console.error('Exit code:', details.exitCode);
     console.error('========================================');
