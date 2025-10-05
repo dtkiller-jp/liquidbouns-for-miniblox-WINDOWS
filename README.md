@@ -14,13 +14,13 @@ npm install
 npm start
 ```
 
-## Build Installer
+## Build Portable Executable
 
 ```bash
 npm run build:win
 ```
 
-After building, the `.exe` installer will be generated in the `dist` folder.
+After building, a single portable `.exe` file will be generated in the `dist` folder.
 
 ## Configure Userscript URL
 
