@@ -1,21 +1,41 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
+const http = require('http');
+const os = require('os');
 
 let mainWindow;
 let userscriptUrl = '';
 
-// 設定ファイルのパス（プロジェクトルートのconfig.json）
-const configPath = path.join(__dirname, 'config.json');
+// 設定ファイルのパス（Bootstrapperと共有）
+const APP_NAME = 'miniblox-app';
+const CONFIG_DIR = path.join(os.homedir(), 'AppData', 'Roaming', APP_NAME);
+const configPath = path.join(CONFIG_DIR, 'config.json');
 
 // 設定を読み込む
 function loadConfig() {
   try {
-    if (fs.existsSync(configPath)) {
+    // 設定ディレクトリが存在しない場合は作成
+    if (!fs.existsSync(CONFIG_DIR)) {
+      fs.mkdirSync(CONFIG_DIR, { recursive: true });
+    }
+
+    // 設定ファイルが存在しない場合はデフォルト作成
+    if (!fs.existsSync(configPath)) {
+      const defaultConfig = {
+        userscriptUrl: 'https://raw.githubusercontent.com/progmem-cc/miniblox.impact.client.updatedv2/refs/heads/main/vav4inject.js',
+        selectedVersion: 'latest'
+      };
+      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+      userscriptUrl = defaultConfig.userscriptUrl;
+    } else {
       const data = fs.readFileSync(configPath, 'utf8');
       const config = JSON.parse(data);
       userscriptUrl = config.userscriptUrl || '';
     }
+
+    console.log('Config loaded. Userscript URL:', userscriptUrl);
   } catch (err) {
     console.error('Failed to load config:', err);
   }
@@ -31,17 +51,47 @@ function saveConfig() {
   }
 }
 
+// HTTPSリクエストを行う（mainプロセスで実行）
+function fetchScript(url) {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith('https') ? https : http;
+
+    const options = {
+      headers: {
+        'User-Agent': 'MinibloxClient/1.0'
+      }
+    };
+
+    client.get(url, options, (res) => {
+      // リダイレクト対応
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        return fetchScript(res.headers.location).then(resolve).catch(reject);
+      }
+
+      if (res.statusCode !== 200) {
+        return reject(new Error(`HTTP ${res.statusCode}`));
+      }
+
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => resolve(data));
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    title: 'Liquidbounce-for-Miniblox',
+    title: 'Miniblox',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: false,
+      contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
-      backgroundThrottling: false
+      webSecurity: true,
+      backgroundThrottling: false,
+      devTools: true
     },
     icon: path.join(__dirname, 'assets', 'icon.png')
   });
@@ -98,23 +148,37 @@ function createWindow() {
   });
 }
 
-// userscriptのURLを設定
+// userscriptをURLから読み込む
+ipcMain.handle('load-userscript', async () => {
+  try {
+    if (userscriptUrl && userscriptUrl !== '' && userscriptUrl !== 'https://example.com/your-script.js') {
+      console.log('Loading userscript from URL:', userscriptUrl);
+      const content = await fetchScript(userscriptUrl);
+      return content;
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to load userscript:', err);
+    return null;
+  }
+});
+
+// userscriptのURLを取得
 ipcMain.handle('get-userscript-url', () => {
   return userscriptUrl;
 });
 
+// userscriptのURLを設定
 ipcMain.handle('set-userscript-url', async (event, url) => {
   userscriptUrl = url;
   saveConfig();
   return { success: true };
 });
 
-// クラッシュを防ぐための設定（GPU有効）
-app.commandLine.appendSwitch('ignore-gpu-blacklist');
-app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
-app.commandLine.appendSwitch('disable-gpu-sandbox');
-app.commandLine.appendSwitch('in-process-gpu');
+// GPU設定
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+}
 
 app.whenReady().then(() => {
   loadConfig();

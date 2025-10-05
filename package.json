@@ -1,16 +1,23 @@
 {
-  "name": "liquidbounce-for-miniblox",
+  "name": "miniblox-game-client",
   "version": "1.0.0",
-  "description": "Miniblox.io Desktop Application",
+  "description": "Miniblox Game Client",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "build:win": "electron-builder --win"
+    "build:win": "electron-builder --win",
+    "build:portable": "electron-builder --win portable",
+    "build:installer": "electron-builder --win nsis"
   },
   "build": {
-    "appId": "com.miniblox.app",
-    "productName": "Miniblox",
+    "appId": "io.miniblox.client",
+    "productName": "MinibloxClient",
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*"
+    ],
     "directories": {
       "output": "dist"
     },
@@ -21,8 +28,15 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "assets/icon.ico"
-    }
+      "icon": "assets/icon.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "verifyUpdateCodeSignature": false,
+      "publisherName": "Miniblox Game",
+      "legalTrademarks": "Miniblox",
+      "artifactName": "MinibloxClient.exe"
+    },
+    "fileAssociations": [],
+    "protocols": []
   },
   "keywords": ["miniblox", "game"],
   "author": "",
