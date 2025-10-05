@@ -197,6 +197,8 @@ ipcMain.handle('set-userscript-url', async (event, url) => {
 // セキュリティとパフォーマンス設定
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('disable-site-isolation-trials');
+app.commandLine.appendSwitch('in-process-gpu');
+app.commandLine.appendSwitch('disable-software-rasterizer');
 
 app.whenReady().then(() => {
   loadConfig();
