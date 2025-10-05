@@ -58,11 +58,14 @@ function fetchScript(url) {
 
     const options = {
       headers: {
-        'User-Agent': 'MinibloxClient/1.0'
-      }
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': '*/*',
+        'Cache-Control': 'no-cache'
+      },
+      timeout: 30000
     };
 
-    client.get(url, options, (res) => {
+    const req = client.get(url, options, (res) => {
       // リダイレクト対応
       if (res.statusCode === 301 || res.statusCode === 302) {
         return fetchScript(res.headers.location).then(resolve).catch(reject);
@@ -73,10 +76,17 @@ function fetchScript(url) {
       }
 
       let data = '';
+      res.setEncoding('utf8');
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => resolve(data));
       res.on('error', reject);
-    }).on('error', reject);
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
   });
 }
 
@@ -90,10 +100,19 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       webSecurity: true,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
+      enableRemoteModule: false,
       backgroundThrottling: false,
-      devTools: true
+      devTools: !app.isPackaged
     },
-    icon: path.join(__dirname, 'assets', 'icon.png')
+    icon: path.join(__dirname, 'assets', 'icon.png'),
+    show: false
+  });
+  
+  // ウィンドウの準備ができてから表示
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   mainWindow.loadURL('https://miniblox.io');
@@ -175,10 +194,9 @@ ipcMain.handle('set-userscript-url', async (event, url) => {
   return { success: true };
 });
 
-// GPU設定
-if (process.platform === 'win32') {
-  app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
-}
+// セキュリティとパフォーマンス設定
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+app.commandLine.appendSwitch('disable-site-isolation-trials');
 
 app.whenReady().then(() => {
   loadConfig();

@@ -11,8 +11,8 @@
     "build:installer": "electron-builder --win nsis"
   },
   "build": {
-    "appId": "io.miniblox.client",
-    "productName": "MinibloxClient",
+    "appId": "io.miniblox.game",
+    "productName": "Miniblox",
     "files": [
       "main.js",
       "preload.js",
@@ -31,12 +31,15 @@
       "icon": "assets/icon.ico",
       "requestedExecutionLevel": "asInvoker",
       "verifyUpdateCodeSignature": false,
-      "publisherName": "Miniblox Game",
-      "legalTrademarks": "Miniblox",
-      "artifactName": "MinibloxClient.exe"
+      "publisherName": "Miniblox",
+      "legalTrademarks": "Miniblox Game",
+      "artifactName": "MinibloxClient.exe",
+      "signingHashAlgorithms": ["sha256"]
     },
     "fileAssociations": [],
-    "protocols": []
+    "protocols": [],
+    "compression": "maximum",
+    "asar": true
   },
   "keywords": ["miniblox", "game"],
   "author": "",
